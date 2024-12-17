@@ -1,12 +1,25 @@
 import os
 import numpy as np
 import pygame
+import pygame.freetype
 import threading
 from ezlap_reader import EZLapReader
+from tracker import Tracker
+from db_interface import DBInterface
+import pyttsx3
+import time
 
 fps = 60
 
+engine = pyttsx3.init()
+engine.setProperty('rate', 125)
+
 reader = EZLapReader()
+tracker = Tracker()
+db = DBInterface()
+
+last_n = 10
+latest = []
 
 def reader_func():
     global reader
@@ -19,13 +32,25 @@ def reader_func():
             log_data(data)
 
 def log_data(data):
-    print("DATA")
-    print(data)
+    global tracker
+    global db
+
+    result = tracker.track(data[0], data[1])
+
+    if result is not None: # if completed a lap
+        engine.say(f'{result/1000.0:.2f}')
+
+        db.insert(data[0], data[1], time.time())
+
+        latest = db.read_last_n(last_n)
 
 reader_thread = threading.Thread(target=reader_func, daemon=True)
 reader_thread.start()
 
+pygame.init()
 screen = pygame.display.set_mode((800, 480))
+
+font = pygame.freetype.Font('terminal.ttf', 30)
 
 running = True
 
@@ -42,6 +67,17 @@ while running:
         running = False
 
     #screen.blit(surf, (0, 0))
+    screen.fill((0, 0, 0))
+
+    # heading
+    text_surface, rect = font.render('UID, LAPTIME', (32, 255, 32))
+
+    screen.blit(text_surface, (10, 10))
+
+    for r, i in enumerate(latest):
+        text_surface, rect = font.render(f'{r[0]}, {r[1]/1000.0:.2f}', (32, 255, 32))
+
+        screen.blit(text_surface, (10, 10 + 32 * i))
 
     pygame.display.flip()
 
