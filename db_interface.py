@@ -14,7 +14,7 @@ class DBInterface:
 
             table = cur.fetchone()
 
-            if not table:
+            if table == (False,):
                 cur.execute("""
                     CREATE TABLE laptimes (
                         uid integer,
