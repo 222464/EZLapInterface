@@ -28,28 +28,27 @@ class EZLapReader:
         self.done = False
 
     def read(self):
-        p = self.ser.read(1)
-        
-        while p == b'' and not self.done:
-            time.sleep(0.001)
+        buf = []
+        chunk = self.ser.read(RX_TX_MAX + 1)
 
-            p = self.ser.read(1)
+        while chunk and not self.done:
+            buf += chunk
+            time.sleep(0.025)
+            chunk = self.ser.read(RX_TX_MAX + 1)
 
-        if self.done:
+        if self.done or len(buf) == 0:
             return None
-        print("HERE")
 
-        length = int(self.ser.read(1))
-        checksum = int(self.ser.read(1))
-        packet_type = self.ser.read(1)
+        length = int(buf[0])
+        checksum = int(buf[1])
+        packet_type = buf[2]
 
         if packet_type == b'\x84': # lap packet
             assert length == 13
 
-            # read 10 more bytes
-            data = self.ser.read(10)
+            data = buf[3:]
 
-            uid, _, t, hits, signal = struct.unpack('<HHIBB')
+            uid, _, t, hits, signal = struct.unpack(buf, '<HHIBB')
 
             return (uid, t, hits, signal)
 
