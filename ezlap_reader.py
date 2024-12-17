@@ -23,7 +23,7 @@ class EZLapReader:
         self.ser.enable_uart()
 
         # init
-        self.ser.write([0x03, 0xb9, 0x01])
+        #self.ser.write([0x03, 0xb9, 0x01])
 
         self.done = False
 

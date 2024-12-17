@@ -4,6 +4,8 @@ import pygame
 import threading
 from ezlap_reader import EZLapReader
 
+fps = 60
+
 reader = EZLapReader()
 
 def reader_func():
@@ -17,6 +19,7 @@ def reader_func():
             log_data(data)
 
 def log_data(data):
+    print("DATA")
     print(data)
 
 reader_thread = threading.Thread(target=reader_func, daemon=True)
@@ -29,9 +32,6 @@ running = True
 start_time = pygame.time.get_ticks()
 
 while running:
-    end_time = start_time
-    start_time = pygame.time.get_ticks()
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -45,9 +45,13 @@ while running:
 
     pygame.display.flip()
 
+    end_time = pygame.time.get_ticks()
+
     dt = end_time - start_time
 
-    pygame.time.delay(max(0, 1000 // 20 - dt))
+    start_time = end_time
+
+    pygame.time.delay(max(0, 1000 // fps - dt))
 
 reader.close()
 reader_thread.join()
