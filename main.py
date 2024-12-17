@@ -19,7 +19,7 @@ tracker = Tracker()
 db = DBInterface()
 
 last_n = 10
-latest = []
+latest = db.read_last_n(last_n)
 
 def reader_func():
     global reader
@@ -43,6 +43,7 @@ def log_data(data):
 
         db.insert(data[0], data[1], time.time())
 
+        # update latest
         latest = db.read_last_n(last_n)
 
 reader_thread = threading.Thread(target=reader_func, daemon=True)
