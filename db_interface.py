@@ -33,7 +33,7 @@ class DBInterface:
 
         with self.conn.cursor() as cur:
             cur.execute(
-                "SELECT * FROM laptimes ORDER BY ts DESC FETCH FIRST (%s) ONLY",
+                "SELECT * FROM laptimes ORDER BY ts DESC LIMIT (%s)",
                 (n,))
 
             cur.fetchall()
