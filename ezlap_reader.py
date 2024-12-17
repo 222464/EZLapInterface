@@ -37,6 +37,7 @@ class EZLapReader:
 
         if self.done:
             return None
+        print("HERE")
 
         length = int(self.ser.read(1))
         checksum = int(self.ser.read(1))
