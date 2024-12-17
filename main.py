@@ -28,6 +28,7 @@ def reader_func():
         data = reader.read()
 
         if data is not None:
+            print(data)
             # log data
             log_data(data)
 

@@ -27,33 +27,43 @@ class EZLapReader:
 
         self.done = False
 
+        self.buf = bytearray()
+
     def read(self):
-        buf = []
-        chunk = self.ser.read(RX_TX_MAX + 1)
+        while len(self.buf) < 13 and not self.done:
+            self.buf += self.ser.read(RX_TX_MAX + 1)
+            time.sleep(0.001)
 
-        while chunk and not self.done:
-            buf += chunk
-            time.sleep(0.025)
-            chunk = self.ser.read(RX_TX_MAX + 1)
+        length = int(self.buf[0])
+        checksum = int(self.buf[1])
+        packet_type = int(self.buf[2])
 
-        if self.done or len(buf) == 0:
-            time.sleep(0.025)
+        # scan for packet type 132 length 13
+        while packet_type != 132 and length != 13 and len(self.buf) > 3:
+            self.buf = self.buf[1:] # deplete
+
+            length = int(self.buf[0])
+            checksum = int(self.buf[1])
+            packet_type = int(self.buf[2])
+
+        if len(self.buf) < 3 or packet_type != 132 or length != 13:
+            time.sleep(0.001)
             return None
 
-        length = int(buf[0])
-        checksum = int(buf[1])
-        packet_type = buf[2]
+        # make sure is full
+        while len(self.buf) < length and not self.done:
+            self.buf += self.ser.read(RX_TX_MAX + 1)
+            time.sleep(0.001)
 
-        if packet_type == b'\x84': # lap packet
-            assert length == 13
+        assert length == 13
 
-            data = buf[3:]
+        data = self.buf[3:length]
 
-            uid, _, t, hits, signal = struct.unpack(buf, '<HHIBB')
+        uid, _, t, hits, signal = struct.unpack('<HHIBB', data)
 
-            return (uid, t, hits, signal)
+        self.buf = self.buf[length:] # deplete
 
-        return None
+        return (uid, t, hits, signal)
             
     def is_open(self):
         return not self.done
