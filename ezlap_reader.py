@@ -23,7 +23,7 @@ class EZLapReader:
         self.ser.enable_uart()
 
         # init
-        #self.ser.write([0x03, 0xb9, 0x01])
+        self.ser.write([0x03, 0xb9, 0x01])
 
         self.done = False
 
@@ -37,6 +37,7 @@ class EZLapReader:
             chunk = self.ser.read(RX_TX_MAX + 1)
 
         if self.done or len(buf) == 0:
+            time.sleep(0.025)
             return None
 
         length = int(buf[0])
