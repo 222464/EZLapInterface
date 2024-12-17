@@ -41,7 +41,7 @@ def log_data(data):
     if result is not None: # if completed a lap
         engine.say(f'{result/1000.0:.2f}')
 
-        db.insert(data[0], data[1], time.time())
+        db.insert(data[0], result, time.time())
 
         # update latest
         latest = db.read_last_n(last_n)
@@ -76,10 +76,10 @@ while running:
 
     screen.blit(text_surface, (10, 10))
 
-    for r, i in enumerate(latest):
+    for i, r in enumerate(latest):
         text_surface, rect = font.render(f'{r[0]}, {r[1]/1000.0:.2f}', (32, 255, 32))
 
-        screen.blit(text_surface, (10, 10 + 32 * i))
+        screen.blit(text_surface, (10, 10 + 32 * (1 + i)))
 
     pygame.display.flip()
 

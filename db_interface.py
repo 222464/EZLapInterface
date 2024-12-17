@@ -33,13 +33,10 @@ class DBInterface:
 
         with self.conn.cursor() as cur:
             cur.execute(
-                "SELECT * FROM laptimes ORDER BY ts DESC LIMIT (%s)",
+                "SELECT * FROM laptimes ORDER BY ts ASC LIMIT (%s)",
                 (n,))
 
-            cur.fetchall()
-
-            for record in cur:
-                result.append(record)
+            result = cur.fetchall()
 
         return result
 
