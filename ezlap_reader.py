@@ -30,13 +30,11 @@ class EZLapReader:
         self.buf = bytearray()
 
     def read(self):
-        while len(self.buf) < 13 and not self.done:
-            self.buf += self.ser.read(RX_TX_MAX + 1)
-            time.sleep(0.001)
+        self.buf += self.ser.read(RX_TX_MAX + 1)
 
-        length = int(self.buf[0])
-        checksum = int(self.buf[1])
-        packet_type = int(self.buf[2])
+        length = 0
+        checksum = 0
+        packet_type = 0
 
         # scan for packet type 132 length 13
         while packet_type != 132 and length != 13 and len(self.buf) > 3:
@@ -58,7 +56,6 @@ class EZLapReader:
         assert length == 13
 
         data = self.buf[3:length]
-        print(data)
 
         uid, _, t, hits, signal = struct.unpack('<HHIBB', data)
 
