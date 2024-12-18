@@ -58,6 +58,7 @@ class EZLapReader:
         assert length == 13
 
         data = self.buf[3:length]
+        print(data)
 
         uid, _, t, hits, signal = struct.unpack('<HHIBB', data)
 

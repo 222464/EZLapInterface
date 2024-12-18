@@ -29,17 +29,17 @@ def reader_func():
         data = reader.read()
 
         if data is not None:
-            print(data)
             # log data
             log_data(data)
 
 def log_data(data):
     global tracker
     global db
+    global latest
 
     result = tracker.track(data[0], data[1])
 
-    if result is not None: # if completed a lap
+    if result > 0: # if completed a lap
         speech.append(f'{result/1000.0:.2f}')
 
         db.insert(data[0], result, time.time())

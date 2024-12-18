@@ -44,7 +44,7 @@ class DBInterface:
                 return result
 
             cur.execute(
-                "SELECT * FROM laptimes ORDER BY ts ASC LIMIT (%s)",
+                "SELECT * FROM laptimes ORDER BY ts DESC LIMIT (%s)",
                 (n,))
 
             result = cur.fetchall()
