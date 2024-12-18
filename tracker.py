@@ -8,6 +8,8 @@ class Tracker:
         if uid in self.last_ts:
             dt = t - self.last_ts[uid]
 
+            self.last_ts[uid] = t
+
             return dt
 
         self.last_ts[uid] = t

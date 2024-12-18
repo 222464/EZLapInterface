@@ -20,6 +20,7 @@ db = DBInterface()
 
 last_n = 10
 latest = db.read_last_n(last_n)
+speech = []
 
 def reader_func():
     global reader
@@ -39,7 +40,7 @@ def log_data(data):
     result = tracker.track(data[0], data[1])
 
     if result is not None: # if completed a lap
-        engine.say(f'{result/1000.0:.2f}')
+        speech.append(f'{result/1000.0:.2f}')
 
         db.insert(data[0], result, time.time())
 
@@ -67,6 +68,12 @@ while running:
 
     if ks[pygame.K_q]:
         running = False
+        
+    if len(speech) > 0:
+        engine.say(speech[0])
+        engine.runAndWait()
+
+        speech = []
 
     #screen.blit(surf, (0, 0))
     screen.fill((0, 0, 0))

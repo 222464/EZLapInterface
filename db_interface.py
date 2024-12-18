@@ -32,6 +32,17 @@ class DBInterface:
         result = []
 
         with self.conn.cursor() as cur:
+            cur.execute("""SELECT EXISTS (
+                   SELECT FROM information_schema.tables 
+                   WHERE  table_schema = 'public'
+                   AND    table_name   = 'laptimes')
+                """)
+
+            table = cur.fetchone()
+
+            if table == (False,):
+                return result
+
             cur.execute(
                 "SELECT * FROM laptimes ORDER BY ts ASC LIMIT (%s)",
                 (n,))
