@@ -10,8 +10,6 @@ from db_interface import DBInterface
 import time
 import cv2
 
-fps = 60
-
 reader = EZLapReader()
 tracker = Tracker()
 db = DBInterface()
@@ -19,16 +17,14 @@ db = DBInterface()
 last_n = 10
 latest = db.read_last_n(last_n)
 
-IMG_SIZE = (720, 1280) # height, width
-
 cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
-
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMG_SIZE[1])
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMG_SIZE[0])
-cap.set(cv2.CAP_PROP_FPS, fps)
 
 if not cap.isOpened():
     raise Exception("Can't open camera.")
+
+IMG_SIZE = (int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)), int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)))
+
+fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 VIDEO_NAME_BASE = "data/video"
 VIDEO_NAME_EXT = ".mp4"
@@ -71,7 +67,7 @@ def log_data(data):
         # update latest
         latest = db.read_last_n(last_n)
 
-reader_thread = threading.Thread(target=reader_func, daemon=True)
+reader_thread = threading.Thread(target=reader_func, daemon=False)
 reader_thread.start()
 
 pygame.init()
