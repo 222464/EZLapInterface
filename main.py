@@ -7,8 +7,9 @@ from ezlap_reader import EZLapReader
 from tracker import Tracker
 from db_interface import DBInterface
 import time
+import cv2
 
-fps = 60
+fps = 30
 
 reader = EZLapReader()
 tracker = Tracker()
@@ -31,7 +32,7 @@ if not cap.isOpened():
 VIDEO_NAME_BASE = "data/video"
 VIDEO_NAME_EXT = ".mp4"
 
-fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
 
 video_index = 0
 
@@ -91,7 +92,7 @@ while running:
     if ks[pygame.K_q]:
         running = False
 
-    ret, frame = self.cap.read()
+    ret, frame = cap.read()
 
     # if frame is read correctly ret is True
     if not ret:
@@ -109,7 +110,7 @@ while running:
 
         print("New video.")
 
-        out = cv2.VideoWriter(video_filename, fourcc, fps, (IMG_SIZE[1], IMG_SIZE[0]), 0) # 0 at end for grayscale
+        out = cv2.VideoWriter(video_filename, fourcc, fps, (IMG_SIZE[1], IMG_SIZE[0]))
 
     if out is not None:
         out.write(frame)
@@ -139,3 +140,10 @@ while running:
 
 reader.close()
 reader_thread.join()
+
+if out is not None:
+    out.release()
+
+cap.release()
+
+print("Done.")

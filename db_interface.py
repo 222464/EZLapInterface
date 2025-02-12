@@ -2,7 +2,7 @@ import psycopg as psy
 
 class DBInterface:
     def __init__(self):
-        self.conn = psy.connect('dbname=miniz user=postgres')
+        self.conn = psy.connect('dbname=postgres2 user=miniz')
 
     def insert(self, uid, dt, ts):
         with self.conn.cursor() as cur:
