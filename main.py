@@ -6,13 +6,9 @@ import threading
 from ezlap_reader import EZLapReader
 from tracker import Tracker
 from db_interface import DBInterface
-import pyttsx3
 import time
 
 fps = 60
-
-engine = pyttsx3.init()
-engine.setProperty('rate', 125)
 
 reader = EZLapReader()
 tracker = Tracker()
@@ -20,7 +16,32 @@ db = DBInterface()
 
 last_n = 10
 latest = db.read_last_n(last_n)
-speech = []
+
+IMG_SIZE = (720, 1280) # height, width
+
+cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
+
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, IMG_SIZE[1])
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, IMG_SIZE[0])
+cap.set(cv2.CAP_PROP_FPS, fps)
+
+if not cap.isOpened():
+    raise Exception("Can't open camera.")
+
+VIDEO_NAME_BASE = "data/video"
+VIDEO_NAME_EXT = ".mp4"
+
+fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+
+video_index = 0
+
+while os.path.exists(VIDEO_NAME_BASE + str(video_index) + VIDEO_NAME_EXT):
+    video_index += 1
+
+video_filename = VIDEO_NAME_BASE + str(video_index) + VIDEO_NAME_EXT
+
+new_video = False
+out = None
 
 def reader_func():
     global reader
@@ -36,11 +57,12 @@ def log_data(data):
     global tracker
     global db
     global latest
+    global new_video
 
     result = tracker.track(data[0], data[1])
 
     if result > 0: # if completed a lap
-        speech.append(f'{result/1000.0:.2f}')
+        new_video = True
 
         db.insert(data[0], result, time.time())
 
@@ -68,12 +90,29 @@ while running:
 
     if ks[pygame.K_q]:
         running = False
-        
-    if len(speech) > 0:
-        engine.say(speech[0])
-        engine.runAndWait()
 
-        speech = []
+    ret, frame = self.cap.read()
+
+    # if frame is read correctly ret is True
+    if not ret:
+        raise Exception("Can't receive frame.")
+
+    if new_video:
+        new_video = False
+
+        if out is not None:
+            out.release()
+
+            video_index += 1
+
+            video_filename = VIDEO_NAME_BASE + str(video_index) + VIDEO_NAME_EXT
+
+        print("New video.")
+
+        out = cv2.VideoWriter(video_filename, fourcc, fps, (IMG_SIZE[1], IMG_SIZE[0]), 0) # 0 at end for grayscale
+
+    if out is not None:
+        out.write(frame)
 
     #screen.blit(surf, (0, 0))
     screen.fill((0, 0, 0))
