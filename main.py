@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pygame
 import pygame.freetype
+import pygame.time
 import threading
 from ezlap_reader import EZLapReader
 from tracker import Tracker
@@ -9,7 +10,7 @@ from db_interface import DBInterface
 import time
 import cv2
 
-fps = 30
+fps = 60
 
 reader = EZLapReader()
 tracker = Tracker()
@@ -60,11 +61,11 @@ def log_data(data):
     global latest
     global new_video
 
+    new_video = True
+
     result = tracker.track(data[0], data[1])
 
     if result > 0: # if completed a lap
-        new_video = True
-
         db.insert(data[0], result, time.time())
 
         # update latest
@@ -81,6 +82,8 @@ font = pygame.freetype.Font('terminal.ttf', 30)
 running = True
 
 start_time = pygame.time.get_ticks()
+
+clock = pygame.time.Clock()
 
 while running:
     for event in pygame.event.get():
@@ -136,7 +139,9 @@ while running:
 
     start_time = end_time
 
-    pygame.time.delay(max(0, 1000 // fps - dt))
+    clock.tick(fps) 
+
+    #pygame.time.delay(max(0, 1000 // fps - dt))
 
 reader.close()
 reader_thread.join()
