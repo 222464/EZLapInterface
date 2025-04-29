@@ -4,7 +4,7 @@ import time
 import struct
 import sys
 
-# make sure permissions to access /dev/hidraw3 are set to use this!
+# make sure permissions to access /dev/hidraw3 (or sometimes a different hidraw) are set to use this!
 class EZLapReader:
     def __init__(self):
         try:
