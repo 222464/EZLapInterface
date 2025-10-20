@@ -10,6 +10,8 @@ import pyttsx3
 import time
 
 fps = 60
+min_time = 3.0
+max_time = 12.0
 
 engine = pyttsx3.init()
 engine.setProperty('rate', 125)
@@ -40,12 +42,16 @@ def log_data(data):
     result = tracker.track(data[0], data[1])
 
     if result > 0: # if completed a lap
-        speech.append(f'{result/1000.0:.2f}')
+        seconds = result / 1000.0
 
-        db.insert(data[0], result, time.time())
+        # range check to ignore outliers
+        if seconds >= min_time and seconds <= max_time:
+            speech.append(f'{seconds:.2f}')
 
-        # update latest
-        latest = db.read_last_n(last_n)
+            db.insert(data[0], result, time.time())
+
+            # update latest
+            latest = db.read_last_n(last_n)
 
 reader_thread = threading.Thread(target=reader_func, daemon=True)
 reader_thread.start()
