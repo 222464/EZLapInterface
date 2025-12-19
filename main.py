@@ -5,7 +5,6 @@ import pygame.freetype
 import threading
 from ezlap_reader import EZLapReader
 from tracker import Tracker
-from db_interface import DBInterface
 import pyttsx3
 import time
 
@@ -18,10 +17,9 @@ engine.setProperty('rate', 125)
 
 reader = EZLapReader()
 tracker = Tracker()
-db = DBInterface()
 
 last_n = 10
-latest = db.read_last_n(last_n)
+latest = []
 speech = []
 
 def reader_func():
@@ -36,7 +34,6 @@ def reader_func():
 
 def log_data(data):
     global tracker
-    global db
     global latest
 
     result = tracker.track(data[0], data[1])
@@ -48,10 +45,11 @@ def log_data(data):
         if seconds >= min_time and seconds <= max_time:
             speech.append(f'{seconds:.2f}')
 
-            db.insert(data[0], result, time.time())
+            latest.append((data[0], result, time.time()))
 
-            # update latest
-            latest = db.read_last_n(last_n)
+            # discard older
+            if len(latest) > last_n:
+                latest = latest[len(latest) - last_n:]
 
 reader_thread = threading.Thread(target=reader_func, daemon=True)
 reader_thread.start()
