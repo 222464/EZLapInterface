@@ -9,6 +9,8 @@ import pyttsx3
 import time
 
 fps = 60
+min_time = 3.0
+max_time = 12.0
 
 engine = pyttsx3.init()
 engine.setProperty('rate', 125)
@@ -37,13 +39,17 @@ def log_data(data):
     result = tracker.track(data[0], data[1])
 
     if result > 0: # if completed a lap
-        speech.append(f'{result/1000.0:.2f}')
+        seconds = result / 1000.0
 
-        # update latest
-        latest.append((data[0], result, time.time()))
+        # range check to ignore outliers
+        if seconds >= min_time and seconds <= max_time:
+            speech.append(f'{seconds:.2f}')
 
-        if len(latest) > last_n:
-            latest = latest[len(latest) - last_n:]
+            latest.insert(0, (data[0], result, time.time()))
+
+            # discard older
+            if len(latest) > last_n:
+                latest = latest[:last_n]
 
 reader_thread = threading.Thread(target=reader_func, daemon=True)
 reader_thread.start()
@@ -94,7 +100,7 @@ while running:
 
     start_time = end_time
 
-    pygame.time.delay(max(0, 1000 // fps - dt))
+    pygame.time.wait(max(0, 1000 // fps - dt))
 
 reader.close()
 reader_thread.join()
