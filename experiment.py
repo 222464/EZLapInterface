@@ -16,11 +16,11 @@ def delay(t, max_sleep=0.01):
 def delay_to(end, max_sleep=0.01):
     t = time.time()
 
-    while t < target:
-        time.sleep(min(max_sleep, target - t))
+    while t < end:
+        time.sleep(min(max_sleep, end - t))
         t = time.time()
 
-experiment_delay = 5.0
+experiment_delay = 10.0
 experiment_time0 = 120.0
 experiment_time1 = 120.0
 test_time = 240.0
@@ -30,6 +30,8 @@ checkpoints = [ experiment_delay, experiment_time0, experiment_time1, test_time 
 engine = pyttsx3.init()
 engine.setProperty('rate', 125)
 
+time.sleep(1.0)
+
 # prefix sum
 cumm = time.time()
 
@@ -38,20 +40,25 @@ for i in range(len(checkpoints)):
     checkpoints[i] = cumm
 
 engine.say("get ready")
+engine.runAndWait()
 
 delay_to(checkpoints[0])
 
 engine.say("go!")
+engine.runAndWait()
 
 delay_to(checkpoints[1])
 
 engine.say("intervene")
+engine.runAndWait()
 
 delay_to(checkpoints[2])
 
 engine.say("test")
+engine.runAndWait()
 
 delay_to(checkpoints[3])
 
 engine.say("finish")
+engine.runAndWait()
 
