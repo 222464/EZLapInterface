@@ -22,7 +22,7 @@ def delay_to(end, max_sleep=0.01):
 
 experiment_delay = 10.0
 experiment_time0 = 120.0
-experiment_time1 = 120.0
+experiment_time1 = 180.0
 test_time = 240.0
 
 checkpoints = [ experiment_delay, experiment_time0, experiment_time1, test_time ]
@@ -44,21 +44,15 @@ engine.runAndWait()
 
 delay_to(checkpoints[0])
 
-engine.say("go!")
+engine.say("go go go!")
 engine.runAndWait()
 
 delay_to(checkpoints[1])
 
-engine.say("intervene")
+engine.say("intervene! intervene! intervene!")
 engine.runAndWait()
 
 delay_to(checkpoints[2])
 
-engine.say("test")
+engine.say("test! test! test!")
 engine.runAndWait()
-
-delay_to(checkpoints[3])
-
-engine.say("finish")
-engine.runAndWait()
-
