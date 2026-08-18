@@ -70,24 +70,27 @@ def log_data(data):
 reader_thread = threading.Thread(target=reader_func, daemon=True)
 reader_thread.start()
 
-running = True
+try:
+    running = True
 
-start_time = time.time()
+    start_time = time.time()
 
-while running:
-    if len(speech) > 0:
-        engine.say(speech[0])
-        engine.runAndWait()
+    while running:
+        if len(speech) > 0:
+            engine.say(speech[0])
+            engine.runAndWait()
 
-        speech = []
+            speech = []
 
-    end_time = time.time()
+        end_time = time.time()
 
-    dt = end_time - start_time
+        dt = end_time - start_time
 
-    start_time = end_time
+        start_time = end_time
 
-    time.sleep(max(0.0, 1.0 / fps - dt))
+        time.sleep(max(0.0, 1.0 / fps - dt))
+except KeyboardInterrupt:
+    print("Ctrl-C pressed, exiting...")
 
 reader.close()
 reader_thread.join()
