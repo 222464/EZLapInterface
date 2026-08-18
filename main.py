@@ -27,8 +27,7 @@ csvfile = open('lap_log.csv', 'w', newline='')
 csvwriter = csv.writer(csvfile)
 
 # header
-csvwriter.writerow(["timestamp", "id", "laptime"])
-
+csvwriter.writerow(["timestamp", "uid", "laptime"])
 
 def reader_func():
     global reader
