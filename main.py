@@ -5,6 +5,7 @@ from ezlap_reader import EZLapReader
 from tracker import Tracker
 import pyttsx3
 import time
+import csv
 
 fps = 60
 min_time = 3.0
@@ -20,6 +21,15 @@ last_n = 10
 latest = []
 speech = []
 
+# logging laps
+csvfile = open('lap_log.csv', 'w', newline='')
+
+csvwriter = csv.writer(csvfile)
+
+# header
+csvwriter.writerow(["timestamp", "id", "laptime"])
+
+
 def reader_func():
     global reader
 
@@ -33,6 +43,7 @@ def reader_func():
 def log_data(data):
     global tracker
     global latest
+    global csvwriter
 
     result = tracker.track(data[0], data[1])
 
@@ -41,11 +52,15 @@ def log_data(data):
 
         # range check to ignore outliers
         if seconds >= min_time and seconds <= max_time:
+            t = round(time.time() * 1000)
+
             speech.append(f'{seconds:.2f}')
 
             latest.insert(0, (data[0], result, time.time()))
 
             text = f'Lap from {latest[0][0]}, {latest[0][1]/1000.0:.2f}s'
+
+            csvwriter.writerow([t, latest[0][0], latest[0][1]/1000.0])
 
             print(text)
 
@@ -77,3 +92,4 @@ while running:
 
 reader.close()
 reader_thread.join()
+csvwriter.close()
