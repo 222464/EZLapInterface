@@ -94,4 +94,3 @@ except KeyboardInterrupt:
 
 reader.close()
 reader_thread.join()
-csvwriter.close()
